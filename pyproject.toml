@@ -1,0 +1,47 @@
+[project]
+name = "flask-magql"
+version = "1.0.0.dev"
+description = "Serve a Magql GraphQL API with Flask."
+readme = "README.md"
+license = {file = "LICENSE.md"}
+authors = [{name = "David Lord", email = "davidism@gmail.com"}]
+requires-python = ">=3.8"
+dependencies = [
+    "magql>=1.0.0.dev",
+    "flask>=2.3",
+    "flask_sqlalchemy>=3"
+]
+
+[build-system]
+requires = ["flit_core<4"]
+build-backend = "flit_core.buildapi"
+
+[tool.flit.sdist]
+include = [
+    "docs/",
+    "requirements/",
+    "tests/",
+    "CHANGES.md",
+    "tox.ini",
+]
+exclude = ["docs/_build/"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+filterwarnings = [
+    "error",
+]
+
+[tool.coverage.run]
+branch = true
+source = ["flask_magql", "tests"]
+
+[tool.coverage.paths]
+source = ["src", "*/site-packages"]
+
+[tool.mypy]
+python_version = "3.8"
+files = ["src/flask_magql"]
+show_error_codes = true
+pretty = true
+strict = true
