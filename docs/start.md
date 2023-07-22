@@ -102,3 +102,28 @@ decorators=[b, a]
 def view():
     ...
 ```
+
+
+Execution Context
+-----------------
+
+In order to share data between resolvers, you can pass context data when
+executing a query. Some examples include passing a database connection or a
+cache. Since this data can be arbitrary, you'll define a function that returns
+that context you know your resolvers need. Decorate the function with
+{meth}`.MagqlExtension.context_provider`.
+
+```python
+@magql_ext.context_provider
+def gql_context():
+    return {"sa_session": db.session}
+```
+
+If you're using [Flask-SQLAlchemy][] and don't set your own context provider,
+Flask-Magql will automatically provide the context `{"sa_session": db.session}`,
+which matches what [Magql-SQLAlchemy][] needs. If you use Magql-SQLAlchemy
+without Flask-SQLAlchemy, or set your own context provider, remember to add the
+`sa_session` key.
+
+[Flask-SQLAlchemy]: https://flask-sqlalchemy.palletsprojects.com
+[Magql-SQLAlchemy]: https://magql-sqlalchemy.autoinvent.dev

@@ -4,7 +4,6 @@ import typing as t
 
 import graphql
 import magql
-import sqlalchemy.orm as sa_orm
 from flask import Blueprint
 from flask import current_app
 from flask import Flask
@@ -43,7 +42,6 @@ class MagqlExtension:
     .. __: https://github.com/graphql/graphiql/tree/main/packages/graphiql#readme
 
     :param schema: The schema to serve.
-    :param sa_session: The SQLAlchemy session to query data with.
     :param decorators: View decorators applied to each view function. This can
         be used to apply authentication, CORS, etc.
     """
@@ -51,13 +49,9 @@ class MagqlExtension:
     def __init__(
         self,
         schema: magql.Schema,
-        sa_session: sa_orm.scoped_session | sa_orm.sessionmaker | sa_orm.Session,
         *,
         decorators: list[t.Callable[[RouteCallable], RouteCallable]] | None = None,
     ) -> None:
-        self._sa_session = sa_session
-        """The SQLAlchemy session to query data with."""
-
         self.schema = schema
         """The Magql schema to serve."""
 
@@ -75,6 +69,8 @@ class MagqlExtension:
         apply authentication, CORS, etc.
         """
 
+        self._get_context: t.Callable[[], t.Any] | None = None
+
     def init_app(self, app: Flask) -> None:
         """Register the GraphQL API on the given Flask app.
 
@@ -83,6 +79,10 @@ class MagqlExtension:
 
         :param app: The app to register on.
         """
+        if self._get_context is None and "sqlalchemy" in app.extensions:
+            context = {"sa_session": app.extensions["sqlalchemy"].session}
+            self._get_context = lambda: context
+
         self.blueprint.add_url_rule(
             "/graphql",
             methods=["POST"],
@@ -101,6 +101,15 @@ class MagqlExtension:
         )
         app.register_blueprint(self.blueprint)
 
+    def context_provider(
+        self, f: t.Callable[[], t.Any]
+    ) -> t.Callable[[], t.Any]:
+        """Decorate a function that should be called by :meth:`execute` to
+        provide a value for ``info.context`` in resolvers.
+        """
+        self._get_context = f
+        return f
+
     def execute(
         self,
         source: str,
@@ -117,9 +126,10 @@ class MagqlExtension:
         :param operation: The name of the operation if the source defines
             multiple.
         """
+        context = None if self._get_context is None else self._get_context()
         return self.schema.execute(
             source=source,
-            context=self._sa_session,
+            context=context,
             variables=variables,
             operation=operation,
         )
