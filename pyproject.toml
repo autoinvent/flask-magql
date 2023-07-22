@@ -9,7 +9,6 @@ requires-python = ">=3.8"
 dependencies = [
     "magql>=1.0.0.dev",
     "flask>=2.3",
-    "flask_sqlalchemy>=3"
 ]
 
 [build-system]
