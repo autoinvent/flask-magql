@@ -18,7 +18,8 @@ from .files import map_files_to_operations
 class MagqlExtension:
     """Serve a Magql :class:`~.magql.schema.Schema` to provide a GraphQL API.
 
-    The following views are registered:
+    The following views are registered. The blueprint's name is ``magql`` by
+    default, which is the prefix for each endpoint name.
 
     .. list-table::
         :header-rows: 1
@@ -28,7 +29,7 @@ class MagqlExtension:
           - Description
         * - ``/graphql``
           - ``.graphql``
-          - The GraphQL API view. Supports the `multipart spec`_, and batched
+          - The GraphQL API view. Supports the `multipart spec`__ and batched
             operations.
         * - ``/schema.graphql``
           - ``.schema``
@@ -36,9 +37,10 @@ class MagqlExtension:
             does not use the introspection query to discover the API.
         * - ``/graphiql``
           - ``.graphiql``
-          - The `GraphiQL`_ UI for exploring the schema and building queries.
+          - The `GraphiQL`__ UI for exploring the schema and building queries.
 
-    .. _multipart spec: https://github.com/jaydenseric/graphql-multipart-request-spec
+    .. __: https://github.com/jaydenseric/graphql-multipart-request-spec
+    .. __: https://github.com/graphql/graphiql/tree/main/packages/graphiql#readme
 
     :param schema: The schema to serve.
     :param sa_session: The SQLAlchemy session to query data with.
