@@ -44,3 +44,8 @@ files = ["src/flask_magql", "tests"]
 show_error_codes = true
 pretty = true
 strict = true
+
+[tool.pyright]
+pythonVersion = "3.10"
+include = ["src/flask_magql", "tests"]
+typeCheckingMode = "basic"

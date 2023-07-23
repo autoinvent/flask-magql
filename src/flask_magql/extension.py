@@ -11,7 +11,6 @@ from flask import Flask
 from flask import render_template
 from flask import request
 from flask.typing import ResponseReturnValue
-from flask.typing import RouteCallable
 
 from .files import map_files_to_operations
 
@@ -52,7 +51,13 @@ class MagqlExtension:
         self,
         schema: magql.Schema,
         *,
-        decorators: list[t.Callable[[RouteCallable], RouteCallable]] | None = None,
+        decorators: list[
+            t.Callable[
+                [t.Callable[..., ResponseReturnValue]],
+                t.Callable[..., ResponseReturnValue],
+            ]
+        ]
+        | None = None,
     ) -> None:
         self.schema = schema
         """The Magql schema to serve."""
@@ -136,7 +141,9 @@ class MagqlExtension:
             operation=operation,
         )
 
-    def _decorate(self, f: RouteCallable) -> RouteCallable:
+    def _decorate(
+        self, f: t.Callable[..., ResponseReturnValue]
+    ) -> t.Callable[..., ResponseReturnValue]:
         """Apply the list of view decorators to the given view function."""
 
         for d in self.decorators:
