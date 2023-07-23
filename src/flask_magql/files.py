@@ -6,7 +6,7 @@ import typing as t
 def map_files_to_operations(
     operations: dict[str, t.Any] | list[dict[str, t.Any]],
     file_map: dict[str, list[str]],
-    files: dict[str, t.Any]
+    files: dict[str, t.Any],
 ) -> None:
     """Implement the `multipart spec`_, mapping file data to variables in the
     GraphQL operation. Modifies the operation's variables in place, replacing

@@ -127,3 +127,13 @@ without Flask-SQLAlchemy, or set your own context provider, remember to add the
 
 [Flask-SQLAlchemy]: https://flask-sqlalchemy.palletsprojects.com
 [Magql-SQLAlchemy]: https://magql-sqlalchemy.autoinvent.dev
+
+
+Errors
+------
+
+If an error occurs when executing a GraphQL query, Flask-Magql will set the
+response status code to 400 if it was a GraphQL-related error, such as syntax,
+types, and input validation. If an unexpected error occurred, it will set the
+status code to 500, output the traceback to the terminal, and add the traceback
+as `error.extensions["traceback"]` in debug mode.

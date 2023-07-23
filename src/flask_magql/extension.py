@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import traceback
 import typing as t
 
 import graphql
@@ -9,7 +10,8 @@ from flask import current_app
 from flask import Flask
 from flask import render_template
 from flask import request
-from flask.typing import ResponseReturnValue, RouteCallable
+from flask.typing import ResponseReturnValue
+from flask.typing import RouteCallable
 
 from .files import map_files_to_operations
 
@@ -101,9 +103,7 @@ class MagqlExtension:
         )
         app.register_blueprint(self.blueprint)
 
-    def context_provider(
-        self, f: t.Callable[[], t.Any]
-    ) -> t.Callable[[], t.Any]:
+    def context_provider(self, f: t.Callable[[], t.Any]) -> t.Callable[[], t.Any]:
         """Decorate a function that should be called by :meth:`execute` to
         provide a value for ``info.context`` in resolvers.
         """
@@ -166,7 +166,7 @@ class MagqlExtension:
             )
 
             if result.errors is not None:
-                status = 400
+                status = _handle_errors(result, status)
 
             results.append(result.formatted)
 
@@ -180,3 +180,43 @@ class MagqlExtension:
 
     def _graphiql_view(self) -> ResponseReturnValue:
         return render_template("magql/graphiql.html")
+
+
+def _handle_errors(result: graphql.ExecutionResult, status: int) -> int:
+    """Called by :meth:`MagqlExtension._graphql_view` if an operation result has
+    errors.
+
+    A separate function instead of inline to avoid highly nested code.
+
+    :param result: The GraphQL execution result.
+    :param status: The current status code.
+    """
+    current_status = 400
+
+    # Set status to 500 for non-GraphQL exceptions. Log the traceback.
+    for error in result.errors:
+        oe = error.original_error
+
+        if oe is not None and not isinstance(oe, graphql.GraphQLError):
+            current_status = 500
+            # Make it easy to recognize internal errors with a generic message.
+            error.message = "Internal Server Error"
+
+            # In debug mode, add the traceback to the result.
+            if current_app.debug:
+                error.extensions = {
+                    "exception": "\n".join(traceback.format_exception(oe))
+                }
+
+            if error.path is not None:
+                message = f"Exception on GraphQL field {error.path}"
+            else:
+                message = "Exception on GraphQL operation"
+
+            current_app.logger.error(message, exc_info=oe)
+
+    # If a previous operation set 500, don't set 400.
+    if current_status > status:
+        return current_status
+
+    return status
