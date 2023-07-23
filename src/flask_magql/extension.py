@@ -57,7 +57,9 @@ class MagqlExtension:
         self.schema = schema
         """The Magql schema to serve."""
 
-        self.blueprint = Blueprint("magql", __name__, template_folder="templates")
+        self.blueprint: Blueprint = Blueprint(
+            "magql", __name__, template_folder="templates"
+        )
         """The Flask blueprint that will hold these GraphQL routes and be
         registered on the app. The blueprint can be modified, for example to add
         a URL prefix: ``me.blueprint.url_prefix = "/api"``.
@@ -148,7 +150,7 @@ class MagqlExtension:
             file_map = current_app.json.loads(request.form["map"])
             map_files_to_operations(operations, file_map, request.files)
         else:
-            operations = request.json
+            operations = request.get_json(silent=False)
 
         is_single = not isinstance(operations, list)
 
@@ -166,7 +168,7 @@ class MagqlExtension:
             )
 
             if result.errors is not None:
-                status = _handle_errors(result, status)
+                status = _handle_errors(result.errors, status)
 
             results.append(result.formatted)
 
@@ -175,26 +177,26 @@ class MagqlExtension:
 
         return current_app.json.response(results), status
 
-    def _send_schema(self):
+    def _send_schema(self) -> ResponseReturnValue:
         return self.schema.to_document(), {"Content-Type": "text/plain"}
 
     def _graphiql_view(self) -> ResponseReturnValue:
         return render_template("magql/graphiql.html")
 
 
-def _handle_errors(result: graphql.ExecutionResult, status: int) -> int:
+def _handle_errors(errors: list[graphql.GraphQLError], status: int) -> int:
     """Called by :meth:`MagqlExtension._graphql_view` if an operation result has
     errors.
 
     A separate function instead of inline to avoid highly nested code.
 
-    :param result: The GraphQL execution result.
+    :param errors: The list of errors from the execution result.
     :param status: The current status code.
     """
     current_status = 400
 
     # Set status to 500 for non-GraphQL exceptions. Log the traceback.
-    for error in result.errors:
+    for error in errors:
         oe = error.original_error
 
         if oe is not None and not isinstance(oe, graphql.GraphQLError):
@@ -205,7 +207,9 @@ def _handle_errors(result: graphql.ExecutionResult, status: int) -> int:
             # In debug mode, add the traceback to the result.
             if current_app.debug:
                 error.extensions = {
-                    "exception": "\n".join(traceback.format_exception(oe))
+                    "exception": "\n".join(
+                        traceback.format_exception(type(oe), oe, oe.__traceback__)
+                    )
                 }
 
             if error.path is not None:
