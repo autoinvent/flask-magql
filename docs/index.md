@@ -19,6 +19,7 @@ it is! This extension allows serving a Magql GraphQL API with [Flask][].
 :hidden:
 
 start
+multipart
 api
 changes
 license
