@@ -1,6 +1,6 @@
 [project]
 name = "flask-magql"
-version = "1.0.0.dev"
+version = "1.0.0"
 description = "Serve a Magql GraphQL API with Flask."
 readme = "README.md"
 license = {file = "LICENSE.md"}
@@ -14,7 +14,7 @@ dependencies = [
 [project.urls]
 Documentation = "https://flask-magql.autoinvent.dev"
 Changes = "https://flask-magql.autoinvent.dev/changes.html"
-Source = "https://github.com/autoinvent/magql/"
+Source = "https://github.com/autoinvent/flask-magql/"
 
 [build-system]
 requires = ["flit_core<4"]

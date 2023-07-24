@@ -1,6 +1,6 @@
 Version 1.0.0
 -------------
 
-Unreleased
+Released 2023-07-24
 
 -   Initial release.
