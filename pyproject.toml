@@ -11,6 +11,11 @@ dependencies = [
     "flask>=2.3",
 ]
 
+[project.urls]
+Documentation = "https://flask-magql.autoinvent.dev"
+Changes = "https://flask-magql.autoinvent.dev/changes.html"
+Source = "https://github.com/autoinvent/magql/"
+
 [build-system]
 requires = ["flit_core<4"]
 build-backend = "flit_core.buildapi"
