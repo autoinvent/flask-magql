@@ -1,2 +1,4 @@
 mypy
 pyright
+pytest
+flask-sqlalchemy

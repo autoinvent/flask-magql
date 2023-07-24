@@ -7,7 +7,7 @@ license = {file = "LICENSE.md"}
 authors = [{name = "David Lord", email = "davidism@gmail.com"}]
 requires-python = ">=3.10"
 dependencies = [
-    "magql>=1.0.0.dev",
+    "magql>=1",
     "flask>=2.3",
 ]
 
