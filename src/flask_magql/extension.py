@@ -214,17 +214,14 @@ def _handle_errors(errors: list[graphql.GraphQLError], status: int) -> int:
             # In debug mode, add the traceback to the result.
             if current_app.debug:
                 error.extensions = {
-                    "exception": "\n".join(
+                    "traceback": "\n".join(
                         traceback.format_exception(type(oe), oe, oe.__traceback__)
                     )
                 }
 
-            if error.path is not None:
-                message = f"Exception on GraphQL field {error.path}"
-            else:
-                message = "Exception on GraphQL operation"
-
-            current_app.logger.error(message, exc_info=oe)
+            current_app.logger.error(
+                f"Exception on GraphQL field {error.path}", exc_info=oe
+            )
 
     # If a previous operation set 500, don't set 400.
     if current_status > status:
