@@ -51,13 +51,15 @@ class MagqlExtension:
         self,
         schema: magql.Schema,
         *,
-        decorators: list[
-            t.Callable[
-                [t.Callable[..., ResponseReturnValue]],
-                t.Callable[..., ResponseReturnValue],
+        decorators: (
+            list[
+                t.Callable[
+                    [t.Callable[..., ResponseReturnValue]],
+                    t.Callable[..., ResponseReturnValue],
+                ]
             ]
-        ]
-        | None = None,
+            | None
+        ) = None,
     ) -> None:
         self.schema = schema
         """The Magql schema to serve."""
