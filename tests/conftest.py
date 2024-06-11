@@ -57,5 +57,4 @@ def client(app: Flask) -> FlaskClient:
 class TGqlRequestF(t.Protocol):
     def __call__(
         self, query: str, variables: dict[str, t.Any] | None = None
-    ) -> TestResponse:
-        ...
+    ) -> TestResponse: ...

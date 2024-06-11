@@ -1,16 +1,25 @@
-Flask-Magql
-===========
+# Magql-SQLAlchemy
 
-[Magql][] is a [GraphQL][] framework for Python. It's pronounced "magical", and
-it is! This extension allows serving a Magql GraphQL API with [Flask][].
+[Magql] is a [GraphQL] framework for Python. It's pronounced "magical", and
+it is! This extension allows generating a complete API from [SQLAlchemy]
+database models. After the schema is generated, it can be modified to add,
+remove, or change any behavior. Here's some of the features Magql-SQLAlchemy
+provides:
 
--   Implements the [GraphQL multipart request specification][multipart] to allow
-    uploading files with a GraphQL operation.
--   Implements batched operations.
--   Provides the [GraphiQL][] UI for exploring the schema and building queries.
+-   `item` and `list` queries, and `create`, `update`, and `delete`
+    mutations for each model.
+-   Database queries are efficient, using SQLAlchemy's relationship loading
+    techniques to eagerly load relationships that are present anywhere in the
+    operation structure.
+-   The list query can be filtered using multiple rules. Attributes can be
+    filtered across relationships. Rules can be grouped and joined using AND and
+    OR. Lists can be sorted by any column and paginated.
+-   The create mutation recognizes null and default column values. The update
+    mutation allows updating any field independently.
+-   The create and update mutations validate unique constraints.
+-   A universal `search` query to search all string columns of all models.
+-   A `check_delete` query to check the effects of deleting a row before doing so.
 
 [Magql]: https://magql.autoinvent.dev
 [GraphQL]: https://graphql.org
-[Flask]: https://flask.palletsprojects.com
-[multipart]: https://github.com/jaydenseric/graphql-multipart-request-spec
-[GraphiQL]: https://github.com/graphql/graphiql/tree/main/packages/graphiql#readme
+[SQLAlchemy]: https://sqlalchemy.org

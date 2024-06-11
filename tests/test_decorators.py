@@ -14,7 +14,7 @@ from flask_magql import MagqlExtension
 
 
 def auth_required(
-    f: t.Callable[..., ResponseReturnValue]
+    f: t.Callable[..., ResponseReturnValue],
 ) -> t.Callable[..., ResponseReturnValue]:
     @wraps(f)
     def decorated(*args: t.Any, **kwargs: t.Any) -> ResponseReturnValue:

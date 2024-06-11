@@ -27,9 +27,9 @@ extlinks = {
 }
 intersphinx_mapping = {
     "python": ("https://docs.python.org/3/", None),
-    "graphql": ("https://graphql-core-3.readthedocs.io/en/latest/", None),
+    "graphql": ("https://graphql-core-3.readthedocs.io/page/", None),
     "sqlalchemy": ("https://docs.sqlalchemy.org", None),
-    "magql": ("https://magql.autoinvent.dev", None),
+    "magql": ("https://magql.autoinvent.dev/page/", None),
 }
 myst_enable_extensions = [
     "fieldlist",
