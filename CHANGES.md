@@ -1,6 +1,6 @@
 ## Version 1.1.0
 
-Unreleased
+Released 2024-06-13
 
 -   Adjust the default context to support Flask-SQLAlchemy-Lite.
 -   Don't register views on each call to `init_app`, which caused issues when
