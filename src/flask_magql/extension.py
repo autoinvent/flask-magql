@@ -113,6 +113,7 @@ class MagqlExtension:
 
         :param app: The app to register on.
         """
+        app.extensions["magql"] = self
         app.register_blueprint(self.blueprint)
 
     def context_provider(self, f: t.Callable[[], t.Any]) -> t.Callable[[], t.Any]:
