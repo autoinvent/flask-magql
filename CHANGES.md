@@ -2,6 +2,8 @@
 
 Unreleased
 
+-   Adjust the default context to support Flask-SQLAlchemy-Lite.
+
 
 ## Version 1.0.0
 

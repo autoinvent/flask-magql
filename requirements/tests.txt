@@ -4,6 +4,8 @@
 #
 #    pip-compile tests.in
 #
+asgiref==3.8.1
+    # via flask
 blinker==1.8.2
     # via flask
 click==8.1.7
@@ -12,10 +14,12 @@ coverage==7.5.3
     # via -r tests.in
 exceptiongroup==1.2.1
     # via pytest
-flask==3.0.3
-    # via flask-sqlalchemy
-flask-sqlalchemy==3.1.1
+flask[async]==3.0.3
+    # via flask-sqlalchemy-lite
+flask-sqlalchemy-lite==0.1.0
     # via -r tests.in
+greenlet==3.0.3
+    # via sqlalchemy
 iniconfig==2.0.0
     # via pytest
 itsdangerous==2.2.0
@@ -32,11 +36,13 @@ pluggy==1.5.0
     # via pytest
 pytest==8.2.2
     # via -r tests.in
-sqlalchemy==2.0.30
-    # via flask-sqlalchemy
+sqlalchemy[asyncio]==2.0.30
+    # via flask-sqlalchemy-lite
 tomli==2.0.1
     # via pytest
 typing-extensions==4.12.2
-    # via sqlalchemy
+    # via
+    #   asgiref
+    #   sqlalchemy
 werkzeug==3.0.3
     # via flask

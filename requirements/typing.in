@@ -1,4 +1,4 @@
-flask-sqlalchemy
+flask-sqlalchemy-lite
 mypy
 pyright
 pytest

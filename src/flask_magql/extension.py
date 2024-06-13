@@ -78,7 +78,7 @@ class MagqlExtension:
         apply authentication, CORS, etc.
         """
 
-        self._get_context: t.Callable[[], t.Any] | None = None
+        self._get_context: t.Callable[[], t.Any] = _default_fsa_context
 
     def init_app(self, app: Flask) -> None:
         """Register the GraphQL API on the given Flask app.
@@ -88,10 +88,6 @@ class MagqlExtension:
 
         :param app: The app to register on.
         """
-        if self._get_context is None and "sqlalchemy" in app.extensions:
-            context = {"sa_session": app.extensions["sqlalchemy"].session}
-            self._get_context = lambda: context
-
         self.blueprint.add_url_rule(
             "/graphql",
             methods=["POST"],
@@ -133,7 +129,7 @@ class MagqlExtension:
         :param operation: The name of the operation if the source defines
             multiple.
         """
-        context = None if self._get_context is None else self._get_context()
+        context = self._get_context()
         return self.schema.execute(
             source=source,
             context=context,
@@ -189,6 +185,16 @@ class MagqlExtension:
 
     def _graphiql_view(self) -> ResponseReturnValue:
         return render_template("magql/graphiql.html")
+
+
+def _default_fsa_context() -> dict[str, t.Any] | None:
+    """Use the Flask-SQLAlchemy(-Lite) session."""
+    try:
+        db = current_app.extensions["sqlalchemy"]
+    except KeyError:
+        return None
+
+    return {"sa_session": db.session}
 
 
 def _handle_errors(errors: list[graphql.GraphQLError], status: int) -> int:

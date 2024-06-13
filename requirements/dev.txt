@@ -8,6 +8,11 @@ alabaster==0.7.16
     # via
     #   -r docs.txt
     #   sphinx
+asgiref==3.8.1
+    # via
+    #   -r tests.txt
+    #   -r typing.txt
+    #   flask
 babel==2.15.0
     # via
     #   -r docs.txt
@@ -56,21 +61,26 @@ exceptiongroup==1.2.1
     #   -r tests.txt
     #   -r typing.txt
     #   pytest
-filelock==3.14.0
+filelock==3.15.1
     # via
     #   tox
     #   virtualenv
-flask==3.0.3
+flask[async]==3.0.3
     # via
     #   -r tests.txt
     #   -r typing.txt
-    #   flask-sqlalchemy
-flask-sqlalchemy==3.1.1
+    #   flask-sqlalchemy-lite
+flask-sqlalchemy-lite==0.1.0
     # via
     #   -r tests.txt
     #   -r typing.txt
 furo==2024.5.6
     # via -r docs.txt
+greenlet==3.0.3
+    # via
+    #   -r tests.txt
+    #   -r typing.txt
+    #   sqlalchemy
 identify==2.5.36
     # via pre-commit
 idna==3.7
@@ -160,7 +170,7 @@ pygments==2.18.0
     #   sphinx
 pyproject-api==1.6.1
     # via tox
-pyright==1.1.366
+pyright==1.1.367
     # via -r typing.txt
 pytest==8.2.2
     # via
@@ -220,11 +230,11 @@ sphinxcontrib-serializinghtml==1.1.10
     # via
     #   -r docs.txt
     #   sphinx
-sqlalchemy==2.0.30
+sqlalchemy[asyncio]==2.0.30
     # via
     #   -r tests.txt
     #   -r typing.txt
-    #   flask-sqlalchemy
+    #   flask-sqlalchemy-lite
 tomli==2.0.1
     # via
     #   -r docs.txt
@@ -241,6 +251,7 @@ typing-extensions==4.12.2
     # via
     #   -r tests.txt
     #   -r typing.txt
+    #   asgiref
     #   mypy
     #   sqlalchemy
 urllib3==2.2.1

@@ -6,7 +6,7 @@ import graphql
 import magql
 import pytest
 from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
+from flask_sqlalchemy_lite import SQLAlchemy
 
 from flask_magql import MagqlExtension
 
@@ -34,7 +34,7 @@ def db() -> SQLAlchemy:
 def create_app(db: SQLAlchemy, ext: MagqlExtension) -> t.Callable[[], Flask]:
     def create_app() -> Flask:
         app = Flask(__name__)
-        app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite://"
+        app.config["SQLALCHEMY_ENGINES"] = {"default": "sqlite://"}
         db.init_app(app)
         ext.init_app(app)
         return app
@@ -47,10 +47,11 @@ def test_automatic_context(app: Flask, ext: MagqlExtension, db: SQLAlchemy) -> N
     is provided in the context.
     """
     with app.app_context():
+        session = db.session
         result = ext.execute("{ echo }")
 
     assert result.data is not None
-    assert result.data["echo"] == {"sa_session": db.session}
+    assert result.data["echo"] == {"sa_session": session}
 
 
 def test_manual_context(ext: MagqlExtension, create_app: t.Callable[[], Flask]) -> None:

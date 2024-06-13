@@ -1,3 +1,3 @@
 coverage
-flask-sqlalchemy
+flask-sqlalchemy-lite
 pytest
