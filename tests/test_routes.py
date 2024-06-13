@@ -21,6 +21,22 @@ def test_graphiql(client: FlaskClient) -> None:
     assert 'fetch("/graphql"' in response.text
 
 
+def test_conveyor(client: FlaskClient) -> None:
+    """/conveyor redirects to /conveyor/. Any /conveyor/<path> returns an HTML
+    page that configures Conveyor's fetch URL.
+    """
+    response = client.get("/conveyor")
+    assert response.status_code == 308
+
+    response = client.get("/conveyor/")
+    assert response.mimetype == "text/html"
+    assert 'fetch("/graphql"' in response.text
+
+    response = client.get("/conveyor/User")
+    assert response.mimetype == "text/html"
+    assert 'fetch("/graphql"' in response.text
+
+
 def test_schema(client: FlaskClient) -> None:
     """/schema.graphql returns a plain text GraphQL schema document."""
     response = client.get("/schema.graphql")

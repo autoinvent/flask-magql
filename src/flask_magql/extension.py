@@ -87,6 +87,13 @@ class MagqlExtension:
             endpoint="graphiql",
             view_func=self._decorate(self._graphiql_view),
         )
+        conveyor = self._decorate(self._conveyor_view)
+        self.blueprint.add_url_rule(
+            "/conveyor/", endpoint="conveyor", view_func=conveyor, defaults={"path": ""}
+        )
+        self.blueprint.add_url_rule(
+            "/conveyor/<path:path>", endpoint="conveyor", view_func=conveyor
+        )
 
         if decorators is None:
             decorators = []
@@ -193,6 +200,9 @@ class MagqlExtension:
 
     def _graphiql_view(self) -> ResponseReturnValue:
         return render_template("magql/graphiql.html")
+
+    def _conveyor_view(self) -> ResponseReturnValue:
+        return render_template("magql/conveyor.html")
 
 
 def _default_fsa_context() -> dict[str, t.Any] | None:

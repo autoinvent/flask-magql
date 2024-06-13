@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+  <meta charset=utf-8>
+  <meta name=viewport content="width=device-width, initial-scale=1.0">
+  <title>Conveyor</title>
+  <link rel="stylesheet" href="https://esm.sh/@autoinvent/conveyor-admin@1/dist/styles/index.css">
+  <link rel="stylesheet" href="https://esm.sh/@autoinvent/conveyor@1/dist/styles/index.css">
+</head>
+<body>
+  <div id="conveyor"></div>
+  <script type="module">
+    import React from "https://esm.sh/react@18"
+    import ReactDOMClient from "https://esm.sh/react-dom@18"
+    import {Conveyor} from "https://esm.sh/@autoinvent/conveyor-admin@1"
+
+    const fetcher = async ({document, variables}) => {
+      const response = await fetch({{ url_for("magql.graphql")|tojson }}, {
+        method: "post",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        body: JSON.stringify({
+          query: document,
+          variables: variables,
+        }),
+        mode: "same-origin",
+        credentials: "same-origin",
+      })
+      const data = await response.json()
+
+      if (data?.data) {
+        return data.data
+      } else if (data?.errors) {
+        throw data.errors
+      } else {
+        throw data
+      }
+    }
+
+    ReactDOMClient.createRoot(document.getElementById("conveyor")).render(
+      React.createElement(Conveyor, {
+        rootPath: {{ url_for("magql.conveyor").strip("/")|tojson }},
+        fetcher
+      })
+    )
+  </script>
+</body>
+</html>
