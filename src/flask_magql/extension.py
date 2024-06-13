@@ -1,19 +1,15 @@
 from __future__ import annotations
 
-import traceback
 import typing as t
-from functools import wraps
 
 import graphql
 import magql
 from flask import Blueprint
 from flask import current_app
 from flask import Flask
-from flask import render_template
-from flask import request
 from flask.typing import ResponseReturnValue
 
-from .files import map_files_to_operations
+from . import _views
 
 
 class MagqlExtension:
@@ -75,24 +71,28 @@ class MagqlExtension:
             "/graphql",
             methods=["POST"],
             endpoint="graphql",
-            view_func=self._decorate(self._graphql_view),
+            view_func=_views.graphql,
         )
         self.blueprint.add_url_rule(
             "/schema.graphql",
             endpoint="schema",
-            view_func=self._decorate(self._send_schema),
+            view_func=_views.schema,
         )
         self.blueprint.add_url_rule(
             "/graphiql",
             endpoint="graphiql",
-            view_func=self._decorate(self._graphiql_view),
-        )
-        conveyor = self._decorate(self._conveyor_view)
-        self.blueprint.add_url_rule(
-            "/conveyor/", endpoint="conveyor", view_func=conveyor, defaults={"path": ""}
+            view_func=_views.graphiql,
         )
         self.blueprint.add_url_rule(
-            "/conveyor/<path:path>", endpoint="conveyor", view_func=conveyor
+            "/conveyor/",
+            endpoint="conveyor",
+            view_func=_views.conveyor,
+            defaults={"path": ""},
+        )
+        self.blueprint.add_url_rule(
+            "/conveyor/<path:path>",
+            endpoint="conveyor",
+            view_func=_views.conveyor,
         )
 
         if decorators is None:
@@ -147,64 +147,6 @@ class MagqlExtension:
             operation=operation,
         )
 
-    def _decorate(
-        self, f: t.Callable[..., ResponseReturnValue]
-    ) -> t.Callable[..., ResponseReturnValue]:
-        """Apply the list of view decorators to the given view function."""
-
-        @wraps(f)
-        def view(**kwargs: t.Any) -> ResponseReturnValue:
-            decorated = f
-
-            for d in self.decorators:
-                decorated = d(decorated)
-
-            return decorated(**kwargs)
-
-        return view
-
-    def _graphql_view(self) -> ResponseReturnValue:
-        if request.mimetype == "multipart/form-data":
-            operations = current_app.json.loads(request.form["operations"])
-            file_map = current_app.json.loads(request.form["map"])
-            map_files_to_operations(operations, file_map, request.files)
-        else:
-            operations = request.get_json(silent=False)
-
-        is_single = not isinstance(operations, list)
-
-        if is_single:
-            operations = [operations]
-
-        results = []
-        status = 200
-
-        for operation in operations:
-            result = self.execute(
-                source=operation["query"],
-                variables=operation.get("variables"),
-                operation=operation.get("operationName"),
-            )
-
-            if result.errors is not None:
-                status = _handle_errors(result.errors, status)
-
-            results.append(result.formatted)
-
-        if is_single:
-            return current_app.json.response(results[0]), status
-
-        return current_app.json.response(results), status
-
-    def _send_schema(self) -> ResponseReturnValue:
-        return self.schema.to_document(), {"Content-Type": "text/plain"}
-
-    def _graphiql_view(self) -> ResponseReturnValue:
-        return render_template("magql/graphiql.html")
-
-    def _conveyor_view(self) -> ResponseReturnValue:
-        return render_template("magql/conveyor.html")
-
 
 def _default_fsa_context() -> dict[str, t.Any] | None:
     """Use the Flask-SQLAlchemy(-Lite) session."""
@@ -214,42 +156,3 @@ def _default_fsa_context() -> dict[str, t.Any] | None:
         return None
 
     return {"sa_session": db.session}
-
-
-def _handle_errors(errors: list[graphql.GraphQLError], status: int) -> int:
-    """Called by :meth:`MagqlExtension._graphql_view` if an operation result has
-    errors.
-
-    A separate function instead of inline to avoid highly nested code.
-
-    :param errors: The list of errors from the execution result.
-    :param status: The current status code.
-    """
-    current_status = 400
-
-    # Set status to 500 for non-GraphQL exceptions. Log the traceback.
-    for error in errors:
-        oe = error.original_error
-
-        if oe is not None and not isinstance(oe, graphql.GraphQLError):
-            current_status = 500
-            # Make it easy to recognize internal errors with a generic message.
-            error.message = "Internal Server Error"
-
-            # In debug mode, add the traceback to the result.
-            if current_app.debug:
-                error.extensions = {
-                    "traceback": "\n".join(
-                        traceback.format_exception(type(oe), oe, oe.__traceback__)
-                    )
-                }
-
-            current_app.logger.error(
-                f"Exception on GraphQL field {error.path}", exc_info=oe
-            )
-
-    # If a previous operation set 500, don't set 400.
-    if current_status > status:
-        return current_status
-
-    return status
