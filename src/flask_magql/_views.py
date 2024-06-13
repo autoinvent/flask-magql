@@ -12,10 +12,10 @@ from flask.typing import ResponseReturnValue
 from graphql import GraphQLError
 from werkzeug.sansio.response import Response
 
-from .files import map_files_to_operations
+from ._files import map_files_to_operations
 
 if t.TYPE_CHECKING:
-    from .extension import MagqlExtension
+    from ._extension import MagqlExtension
 
 
 def _get_magql_ext() -> MagqlExtension:

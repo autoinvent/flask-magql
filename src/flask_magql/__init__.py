@@ -1,4 +1,4 @@
-from .extension import MagqlExtension
+from ._extension import MagqlExtension
 
 __all__ = [
     "MagqlExtension",
