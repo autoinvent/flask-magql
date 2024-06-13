@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import traceback
 import typing as t
+from functools import wraps
 
 import graphql
 import magql
@@ -70,6 +71,23 @@ class MagqlExtension:
         a URL prefix: ``me.blueprint.url_prefix = "/api"``.
         """
 
+        self.blueprint.add_url_rule(
+            "/graphql",
+            methods=["POST"],
+            endpoint="graphql",
+            view_func=self._decorate(self._graphql_view),
+        )
+        self.blueprint.add_url_rule(
+            "/schema.graphql",
+            endpoint="schema",
+            view_func=self._decorate(self._send_schema),
+        )
+        self.blueprint.add_url_rule(
+            "/graphiql",
+            endpoint="graphiql",
+            view_func=self._decorate(self._graphiql_view),
+        )
+
         if decorators is None:
             decorators = []
 
@@ -88,22 +106,6 @@ class MagqlExtension:
 
         :param app: The app to register on.
         """
-        self.blueprint.add_url_rule(
-            "/graphql",
-            methods=["POST"],
-            endpoint="graphql",
-            view_func=self._decorate(self._graphql_view),
-        )
-        self.blueprint.add_url_rule(
-            "/schema.graphql",
-            endpoint="schema",
-            view_func=self._decorate(self._send_schema),
-        )
-        self.blueprint.add_url_rule(
-            "/graphiql",
-            endpoint="graphiql",
-            view_func=self._decorate(self._graphiql_view),
-        )
         app.register_blueprint(self.blueprint)
 
     def context_provider(self, f: t.Callable[[], t.Any]) -> t.Callable[[], t.Any]:
@@ -142,10 +144,16 @@ class MagqlExtension:
     ) -> t.Callable[..., ResponseReturnValue]:
         """Apply the list of view decorators to the given view function."""
 
-        for d in self.decorators:
-            f = d(f)
+        @wraps(f)
+        def view(**kwargs: t.Any) -> ResponseReturnValue:
+            decorated = f
 
-        return f
+            for d in self.decorators:
+                decorated = d(decorated)
+
+            return decorated(**kwargs)
+
+        return view
 
     def _graphql_view(self) -> ResponseReturnValue:
         if request.mimetype == "multipart/form-data":
