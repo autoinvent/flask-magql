@@ -2,6 +2,8 @@
 
 Unreleased
 
+-   Pin conveyor-admin to 1.0.3 until style issues in 1.1 are fixed. {issue}`21`
+
 
 ## Version 1.1.0
 
