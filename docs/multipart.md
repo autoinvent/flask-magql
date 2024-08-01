@@ -30,7 +30,7 @@ def resolve_echo_file(parent, info, **kwargs):
 ```text
 $ echo "Hello, World!" > hello.txt
 $ curl http://127.0.0.1:5000/graphql \
-    -F operations='{"query": "query($file: Upload!) { echo_file(file: $file) }"}'
+    -F operations='{"query": "query($file: Upload!) { echo_file(file: $file) }", "variables": {"file": null}}'
     -F map='{"0": ["variables.file"]}'
     -F 0=hello.txt
 {
